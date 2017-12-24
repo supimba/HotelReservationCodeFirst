@@ -54,35 +54,40 @@ namespace HotelReservationAPI.Controllers
         }
 
        //TODO Get avaible Rooms by date
-         public IList<RoomDetailsDto> GetAvaibleRoomsByDate(DateTime startDate, DateTime endDate)
+         public IList<Room> GetAvaibleRoomsByDate(DateTime startDate, DateTime endDate)
          {
-   
+
             //var reservations = db.Reservations.Where(r => r.StartDate >= endDate && startDate <= r.EndDate).SelectMany(r=>r.Rooms);
-          // var reservedRooms = db.Rooms.Where(rr => rr.Reservations.Any(r => r.StartDate >= endDate && startDate <= r.EndDate));
+            // var reservedRooms = db.Rooms.Where(rr => rr.Reservations.Any(r => r.StartDate >= endDate && startDate <= r.EndDate));
 
 
-             var reservedRooms = db.Rooms.Where(
-                 rr => rr.Reservations.Any(r => r.StartDate >= endDate && startDate <= r.EndDate)); 
+            //var reservedRooms = db.Rooms.Where(
+            //    rr => rr.Reservations.Any(r => r.StartDate >= endDate && startDate <= r.EndDate)); 
+            var reservedRooms = db.Rooms.Where(
+                rr => rr.Reservations.Any(r =>  (startDate >=  r.StartDate && startDate <= r.EndDate) ||
+                                                (endDate > r.StartDate && endDate < r.EndDate) ||
+                                                (startDate < r.StartDate && endDate> r.EndDate)
+                                                )).ToList();
+
+            
+               
+            /*
+                         rooms.Select(r => new RoomDetailsDto()
+                         {
+                             Number = r.Number,
+                             Description = r.Description,
+                             Type = r.Type,
+                             Price = r.Price,
+                             HasTv = r.HasTv,
+                             HasHairDryer = r.HasHairDryer,
+                             Hotel = r.Hotel,
+                             Reservations = r.Reservations.ToList()
+
+                         }); 
+                         */
 
 
- 
-/*
-             rooms.Select(r => new RoomDetailsDto()
-             {
-                 Number = r.Number,
-                 Description = r.Description,
-                 Type = r.Type,
-                 Price = r.Price,
-                 HasTv = r.HasTv,
-                 HasHairDryer = r.HasHairDryer,
-                 Hotel = r.Hotel,
-                 Reservations = r.Reservations.ToList()
-
-             }); 
-             */
-
-
-            return rooms ;
+            return reservedRooms ;
 
         }
 
