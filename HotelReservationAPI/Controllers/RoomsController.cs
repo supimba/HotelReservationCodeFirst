@@ -10,10 +10,12 @@ using System.Net.Http;
 using System.Runtime.Remoting.Messaging;
 using System.Web.Http;
 using System.Web.Http.Description;
+using HotelReservationAPI.DTO;
 using HotelReservationAPI.Models;
 
 namespace HotelReservationAPI.Controllers
 {
+    [RoutePrefix("api/Rooms")]
     public class RoomsController : ApiController
     {
         private DatabaseContext db = new DatabaseContext();
@@ -28,6 +30,7 @@ namespace HotelReservationAPI.Controllers
         {
             return db.Rooms.Select(r => new RoomDetailsDto()
             {
+                IdRoom = r.IdRoom,
                 Number = r.Number,
                 Description = r.Description,
                 Type = r.Type,
@@ -35,7 +38,8 @@ namespace HotelReservationAPI.Controllers
                 HasTv = r.HasTv,
                 HasHairDryer = r.HasHairDryer,
                 Hotel = r.Hotel,
-                Reservations = r.Reservations.ToList()
+                Reservations = r.Reservations.ToList(),
+                
             }).ToList();
 
         }
@@ -54,40 +58,115 @@ namespace HotelReservationAPI.Controllers
         }
 
        //TODO Get avaible Rooms by date
-         public IList<Room> GetAvaibleRoomsByDate(DateTime startDate, DateTime endDate)
+         public IList<RoomDetailsDto> GetAvaibleRoomsByDate(DateTime startDate, DateTime endDate)
          {
 
-            //var reservations = db.Reservations.Where(r => r.StartDate >= endDate && startDate <= r.EndDate).SelectMany(r=>r.Rooms);
-            // var reservedRooms = db.Rooms.Where(rr => rr.Reservations.Any(r => r.StartDate >= endDate && startDate <= r.EndDate));
 
+            // Ref: https://stackoverflow.com/questions/5624614/get-a-list-of-elements-by-their-id-in-entity-framework
 
-            //var reservedRooms = db.Rooms.Where(
-            //    rr => rr.Reservations.Any(r => r.StartDate >= endDate && startDate <= r.EndDate)); 
             var reservedRooms = db.Rooms.Where(
                 rr => rr.Reservations.Any(r =>  (startDate >=  r.StartDate && startDate <= r.EndDate) ||
                                                 (endDate > r.StartDate && endDate < r.EndDate) ||
                                                 (startDate < r.StartDate && endDate> r.EndDate)
-                                                )).ToList();
+                                                ));
 
+            var allPictures = db.Pictures; 
+            var avaibleRoom = db.Rooms.Where(r => !reservedRooms.Contains(r)).Select(r => 
             
-               
-            /*
-                         rooms.Select(r => new RoomDetailsDto()
-                         {
-                             Number = r.Number,
-                             Description = r.Description,
-                             Type = r.Type,
-                             Price = r.Price,
-                             HasTv = r.HasTv,
-                             HasHairDryer = r.HasHairDryer,
-                             Hotel = r.Hotel,
-                             Reservations = r.Reservations.ToList()
+            new RoomDetailsDto()
+             {
+                IdRoom = r.IdRoom,
+                 Number = r.Number,
+                 Description = r.Description,
+                 Type = r.Type,
+                 Price = r.Price,
+                 HasTv = r.HasTv,
+                 HasHairDryer = r.HasHairDryer,
+                 Hotel = r.Hotel,
+                 Reservations = r.Reservations.ToList(),
+                 Pictures = allPictures.Where(p => p.Room.IdRoom == r.IdRoom).Select(i => new PictureDto() { IdPicture = i.IdPicture, Url = i.Url }).ToList()
+             }).ToList();             
 
-                         }); 
-                         */
+            return avaibleRoom;
+
+        }
+
+        //TODO Get rooms by Hotel Location
+        public IList<RoomDetailsDto> GetAvaibleRoomsByLocation(DateTime startDate, DateTime endDate, String location)
+        {
+            var reservedRooms = db.Rooms.Where(
+                rr => rr.Reservations.Any(r => (startDate >= r.StartDate && startDate <= r.EndDate) ||
+                                               (endDate > r.StartDate && endDate < r.EndDate) ||
+                                               (startDate < r.StartDate && endDate > r.EndDate) 
+                ) && rr.Hotel.Location.Equals(location)
+                
+                );
+
+            var allPictures = db.Pictures;
+            var avaibleRoom = db.Rooms.Where(r => !reservedRooms.Contains(r)).Select(r =>
+
+                new RoomDetailsDto()
+                {
+                    IdRoom = r.IdRoom,
+                    Number = r.Number,
+                    Description = r.Description,
+                    Type = r.Type,
+                    Price = r.Price,
+                    HasTv = r.HasTv,
+                    HasHairDryer = r.HasHairDryer,
+                    Location = r.Hotel.Location,
+                    Hotel = r.Hotel,
+                    Reservations = r.Reservations.ToList(),
+                    Pictures = allPictures.Where(p => p.Room.IdRoom == r.IdRoom).Select(i => new PictureDto() { IdPicture = i.IdPicture, Url = i.Url }).ToList()
+                }).ToList();
 
 
-            return reservedRooms ;
+            return avaibleRoom;
+
+        }
+
+        //TODO Get rooms by characteristics
+        [Route("characteristics")]
+        public IList<RoomDetailsDto> GetAvaibleRoomsByCharacteristics(DateTime startDate, DateTime endDate, int category, bool hasWifi, bool hasParking, bool hasTv, bool hasHairDryer)
+        {
+
+            var charactHotel =
+                db.Hotels.Where(h => h.Category == category && h.HasWifi == hasWifi && h.HasParking == hasParking); 
+
+            //!charactHotel.Contains(rr.Hotel)
+
+            var reservedRooms = db.Rooms.Where(
+                rr => rr.Reservations.Any(r => ((startDate >= r.StartDate && startDate <= r.EndDate) ||
+                                               (endDate > r.StartDate && endDate < r.EndDate) ||
+                                               (startDate < r.StartDate && endDate > r.EndDate) )
+                      ) 
+            );
+
+            // var charactRooms = reservedRooms.Where(rr => !reservedRooms.Contains(rr) && rr.HasTv == hasTv && rr.HasHairDryer == hasHairDryer );
+
+            var allPictures = db.Pictures;
+
+            var avaibleRoom = db.Rooms.Where(r => 
+            !reservedRooms.Contains(r) && r.HasTv == hasTv && r.HasHairDryer == hasHairDryer &&
+            r.Hotel.HasParking == hasParking && r.Hotel.HasWifi == hasWifi && r.Hotel.Category == category).Select( r=>
+
+                new RoomDetailsDto()
+                {
+                    IdRoom = r.IdRoom,
+                    Number = r.Number,
+                    Description = r.Description,
+                    Type = r.Type,
+                    Price = r.Price,
+                    HasTv = r.HasTv,
+                    HasHairDryer = r.HasHairDryer,
+                    Location = r.Hotel.Location,
+                    Hotel = r.Hotel,
+                    Reservations = r.Reservations.ToList(),
+                    Pictures = allPictures.Where(p => p.Room.IdRoom == r.IdRoom).Select(i => new PictureDto() { IdPicture = i.IdPicture, Url = i.Url }).ToList()
+                }).ToList();
+
+
+            return avaibleRoom;
 
         }
 

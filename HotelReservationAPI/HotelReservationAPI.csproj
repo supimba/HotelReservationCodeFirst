@@ -172,6 +172,7 @@
     <Compile Include="Controllers\ReservationsController_.cs" />
     <Compile Include="Controllers\RoomsController.cs" />
     <Compile Include="Controllers\RoomsController_.cs" />
+    <Compile Include="DTO\PictureDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -198,12 +199,12 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DatabaseContext.cs" />
     <Compile Include="Models\Hotel.cs" />
-    <Compile Include="Models\HotelDetailsDto.cs" />
+    <Compile Include="DTO\HotelDetailsDto.cs" />
     <Compile Include="Models\Picture.cs" />
     <Compile Include="Models\Reservation.cs" />
-    <Compile Include="Models\ReservationDetailsDto.cs" />
+    <Compile Include="DTO\ReservationDetailsDto.cs" />
     <Compile Include="Models\Room.cs" />
-    <Compile Include="Models\RoomDetailsDto.cs" />
+    <Compile Include="DTO\RoomDetailsDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

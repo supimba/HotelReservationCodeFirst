@@ -13,6 +13,6 @@ namespace HotelReservationAPI.Models
         public DateTime EndDate { get; set; }
         public string Name { get; set; }
         public string Firstname { get; set; }
-        public virtual ICollection<Room> Rooms { get; set; }
+        public ICollection<Room> Rooms { get; set; }
     }
 }
