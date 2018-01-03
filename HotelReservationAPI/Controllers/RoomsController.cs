@@ -103,6 +103,7 @@ namespace HotelReservationAPI.Controllers
                 );
 
             var allPictures = db.Pictures;
+            //HELLO 
             var avaibleRoom = db.Rooms.Where(r => !reservedRooms.Contains(r) && r.Hotel.Location.Equals(location)).Select(r =>
 
                 new RoomDetailsDto()
