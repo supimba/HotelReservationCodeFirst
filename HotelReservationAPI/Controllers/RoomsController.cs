@@ -103,7 +103,7 @@ namespace HotelReservationAPI.Controllers
                 );
 
             var allPictures = db.Pictures;
-            var avaibleRoom = db.Rooms.Where(r => !reservedRooms.Contains(r)).Select(r =>
+            var avaibleRoom = db.Rooms.Where(r => !reservedRooms.Contains(r) && r.Hotel.Location.Equals(location)).Select(r =>
 
                 new RoomDetailsDto()
                 {
@@ -127,11 +127,12 @@ namespace HotelReservationAPI.Controllers
 
         //TODO Get rooms by characteristics
         [Route("characteristics")]
-        public IList<RoomDetailsDto> GetAvaibleRoomsByCharacteristics(DateTime startDate, DateTime endDate, int category, bool hasWifi, bool hasParking, bool hasTv, bool hasHairDryer)
+        public IList<RoomDetailsDto> GetAvaibleRoomsByCharacteristics(DateTime startDate, DateTime endDate, int category, bool hasWifi, bool hasParking, bool hasTv, bool hasHairDryer, int roomType)
         {
+          
 
             var charactHotel =
-                db.Hotels.Where(h => h.Category == category && h.HasWifi == hasWifi && h.HasParking == hasParking); 
+                db.Hotels.Where(h => h.Category == category && h.HasWifi == hasWifi && h.HasParking == hasParking ); 
 
             //!charactHotel.Contains(rr.Hotel)
 
@@ -146,9 +147,11 @@ namespace HotelReservationAPI.Controllers
 
             var allPictures = db.Pictures;
 
+            //charactHotel :  r.Hotel.HasParking == hasParking && r.Hotel.HasWifi == hasWifi && r.Hotel.Category == category
+
             var avaibleRoom = db.Rooms.Where(r => 
-            !reservedRooms.Contains(r) && r.HasTv == hasTv && r.HasHairDryer == hasHairDryer &&
-            r.Hotel.HasParking == hasParking && r.Hotel.HasWifi == hasWifi && r.Hotel.Category == category).Select( r=>
+            !reservedRooms.Contains(r) && r.HasTv == hasTv && r.HasHairDryer == hasHairDryer && r.Type == roomType &&
+            charactHotel.Contains(r.Hotel)).Select( r=>
 
                 new RoomDetailsDto()
                 {
