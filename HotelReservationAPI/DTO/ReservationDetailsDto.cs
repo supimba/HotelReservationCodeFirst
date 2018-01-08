@@ -7,7 +7,7 @@ namespace HotelReservationAPI.Models
 {
     public class ReservationDetailsDto
     {
-
+        public int IdReservation { get; set; }
         public string NbrPerson { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

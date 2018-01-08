@@ -57,11 +57,33 @@ namespace HotelReservationAPI.Migrations
                 HasHairDryer = false
 
             };
+            Room singleOctodure3 = new Room()
+            {
+                Hotel = octodureHotel,
+                Number = 3,
+                Description = "Chambre simple style typique de l'octodure.",
+                Type = 1,
+                Price = 75,
+                HasTv = true,
+                HasHairDryer = true
+
+            };
+            Room singleOctodure4 = new Room()
+            {
+                Hotel = octodureHotel,
+                Number = 4,
+                Description = "La chambre la plus calme  de notre hotel. Reposé vous sans TV.",
+                Type = 1,
+                Price = 85,
+                HasTv = false,
+                HasHairDryer = true
+
+            };
 
             Room doubleRoom1 = new Room()
             {
                 Hotel = octodureHotel,
-                Number = 3,
+                Number = 5,
                 Description = "Nos chambres double standard offrent une bonne solution d\'hébergement economique avec tout le confort. ",
                 Type = 2,
                 Price = 100,
@@ -73,13 +95,45 @@ namespace HotelReservationAPI.Migrations
             Room doubleRoom2 = new Room()
             {
                 Hotel = octodureHotel,
-                Number = 4,
+                Number = 6,
                 Description = "Chambres calmes et spacieuses, elles offrent une superficie de 25m2. Idéales pour un séjour confortable, elles sont également pourvues d’une grande salle de bain avec baignoire ainsi que d’un dressing. ",
                 Type = 2,
                 Price = 120,
                 HasTv = true,
                 HasHairDryer = true
             };
+
+            Room doubleRoom3 = new Room()
+            {
+                Hotel = octodureHotel,
+                Number = 7,
+                Description = "Chambre double standard de l'octodure. ",
+                Type = 2,
+                Price = 90,
+                HasTv = true,
+                HasHairDryer = true
+            };
+            Room doubleRoom4 = new Room()
+            {
+                Hotel = octodureHotel,
+                Number = 8,
+                Description = "Cette chambre avec balcon est non fumeur.",
+                Type = 2,
+                Price = 115,
+                HasTv = true,
+                HasHairDryer = true
+            };
+            Room doubleRoom5 = new Room()
+            {
+                Hotel = octodureHotel,
+                Number = 9,
+                Description = "Parfait pour une nuit en couple. ",
+                Type = 2,
+                Price = 95,
+                HasTv = true,
+                HasHairDryer = true
+            };
+
             Picture singleOctodure1Picture = new Picture()
             {
                 Room = singleOctodure1,
@@ -92,7 +146,6 @@ namespace HotelReservationAPI.Migrations
                 Url = "https://media-cdn.tripadvisor.com/media/photo-s/02/e8/09/a3/la-porte-d-octodure-hotel.jpg"
             };
 
-            
 
             // Add hotel
             context.Hotels.Add(octodureHotel);
@@ -100,15 +153,27 @@ namespace HotelReservationAPI.Migrations
             List<Room> roomsOctoList = new List<Room>();
             roomsOctoList.Add(singleOctodure1);
             roomsOctoList.Add(singleOctodure2);
+            roomsOctoList.Add(singleOctodure3);
+            roomsOctoList.Add(singleOctodure4);
             roomsOctoList.Add(doubleRoom1);
             roomsOctoList.Add(doubleRoom2);
+            roomsOctoList.Add(doubleRoom3);
+            roomsOctoList.Add(doubleRoom4);
+            roomsOctoList.Add(doubleRoom5);
+
             context.SaveChanges(); 
 
             // Add rooms
             context.Rooms.Add(singleOctodure1);
             context.Rooms.Add(singleOctodure2);
+            context.Rooms.Add(singleOctodure3);
+            context.Rooms.Add(singleOctodure4);
+
             context.Rooms.Add(doubleRoom1);
             context.Rooms.Add(doubleRoom2);
+            context.Rooms.Add(doubleRoom3);
+            context.Rooms.Add(doubleRoom4);
+            context.Rooms.Add(doubleRoom5);
             context.SaveChanges();
 
             // Add pictures

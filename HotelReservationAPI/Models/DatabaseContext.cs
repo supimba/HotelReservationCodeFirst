@@ -21,6 +21,8 @@ namespace HotelReservationAPI.Models
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
 
+
+            // change tables id when code first generate databse
             modelBuilder.Entity<Room>()
                 .HasMany(r => r.Reservations)
                 .WithMany(r => r.Rooms)

@@ -20,9 +20,20 @@ namespace HotelReservationAPI.Controllers
         private Reservation _reservation =null; 
 
         // GET: api/Reservations
-        public IQueryable<Reservation> GetReservations()
+        public IList<ReservationDetailsDto> GetReservations()
         {
-            return db.Reservations;
+            return db.Reservations.Select(r => new ReservationDetailsDto()
+            {
+                IdReservation = r.IdReservation,
+                NbrPerson = r.NbrPerson,
+                StartDate = r.StartDate,
+                EndDate = r.EndDate,
+                Name = r.Name,
+                Firstname = r.Firstname,
+                Rooms = r.Rooms.ToList()
+
+            }).ToList();
+
         }
 
         // GET: api/Reservations/5
@@ -38,6 +49,13 @@ namespace HotelReservationAPI.Controllers
             return Ok(reservation);
         }
 
+
+        /// <summary>
+        /// Not used in project context
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="reservation"></param>
+        /// <returns></returns>
         // PUT: api/Reservations/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutReservation(int id, Reservation reservation)
@@ -62,37 +80,20 @@ namespace HotelReservationAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ReservationExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                //if (!ReservationExists(id))
+                //{
+                //    return NotFound();
+                //}
+                //else
+                //{
+                //    throw;
+                //}
             }
 
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/Reservations
 
-        /*
-    [ResponseType(typeof(Reservation))]
-    public IHttpActionResult PostReservation(Reservation reservation)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        db.Reservations.Add(reservation);
-        db.SaveChanges();
-
-        return CreatedAtRoute("DefaultApi", new { id = reservation.IdReservation }, reservation);
-    }
-
-*/
 
         // POST: api/Reservations
         [ResponseType(typeof(Reservation))]
@@ -121,6 +122,11 @@ namespace HotelReservationAPI.Controllers
             return CreatedAtRoute("DefaultApi", new { id = reservation.IdReservation }, reservation);
         }
 
+        /// <summary>
+        /// Save a new reservation with one or more rooms associated.
+        /// </summary>
+        /// <param name="reservation"></param>
+        /// <returns></returns>
         // POST: api/Reservations
         [ResponseType(typeof(Reservation))]
         public IHttpActionResult PostReservation(Reservation reservation)
@@ -141,7 +147,7 @@ namespace HotelReservationAPI.Controllers
 
             reservation.Rooms.Clear();
             int nbrePers = 0;
-           
+
             foreach (int id in roomIdList)
             {
                 Room room = db.Rooms.Find(id);
@@ -152,12 +158,33 @@ namespace HotelReservationAPI.Controllers
                 reservation.Rooms.Add(room);
 
             }
-            
+
 
             db.Reservations.Add(reservation);
-            db.SaveChangesAsync();
+            db.SaveChanges();
 
             return CreatedAtRoute("DefaultApi", new { id = reservation.IdReservation }, reservation);
+        }
+
+        // DELETE: api/Reservations/delete?id={id}?firstname={firstname}?lastname={lastname}
+        [ResponseType(typeof(Reservation))]
+        [Route("delete")]
+        private IHttpActionResult DeletePersonReservation(int id, string firstname, string lastname)
+        {
+            
+            Reservation reservation = db.Reservations.FirstOrDefault(r => r.IdReservation == id && r.Firstname == firstname && r.Name == lastname);
+
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            db.Reservations.Remove(reservation);
+            db.SaveChanges();
+
+            return Ok(reservation);
+
+
         }
 
 
@@ -176,20 +203,7 @@ namespace HotelReservationAPI.Controllers
                 roomIds.Add(room.IdRoom);
             }
 
-            /*  var reservedRooms = db.Reservations.Where((r => (startDate >= r.StartDate && startDate <= r.EndDate) ||
-                                                               (endDate > r.StartDate && endDate < r.EndDate) ||
-                                                               (startDate < r.StartDate && endDate > r.EndDate)
-               )).Select(r => r.Rooms);
-               */
-            //TODO nettoyer
-            /*
-                        var reservedRooms = db.Rooms.Where(
-                            rr => rr.Reservations.Any(r => ((startDate >= r.StartDate && startDate <= r.EndDate) ||
-                                                            (endDate > r.StartDate && endDate < r.EndDate) ||
-                                                            (startDate < r.StartDate && endDate > r.EndDate))
-                            )
-                        );
-                        */
+
             var reservedRooms = GetReservedRooms(startDate, endDate); 
 
             foreach (var id in roomIds)
@@ -202,7 +216,7 @@ namespace HotelReservationAPI.Controllers
         private ICollection<Room> GetReservedRooms(DateTime startDate, DateTime endDate)
         {
             var reservedRooms = db.Rooms.Where(
-                rr => rr.Reservations.Any(r => ((startDate >= r.StartDate && startDate <= r.EndDate) ||
+                rr => rr.Reservations.Any(r => ((startDate >= r.StartDate && startDate < r.EndDate) ||
                                                 (endDate > r.StartDate && endDate < r.EndDate) ||
                                                 (startDate < r.StartDate && endDate > r.EndDate))
                 )
@@ -228,18 +242,7 @@ namespace HotelReservationAPI.Controllers
             return Ok(reservation);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        private bool ReservationExists(int id)
-        {
-            return db.Reservations.Count(e => e.IdReservation == id) > 0;
-        }
     }
+
+
 }
