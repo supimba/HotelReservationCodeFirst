@@ -49,6 +49,20 @@ namespace HotelReservationAPI.Controllers
             return Ok(reservation);
         }
 
+        // GET: api/Reservations/5
+        [ResponseType(typeof(Reservation))]
+        public IHttpActionResult GetReservation(int id, string firstname, string name)
+        {
+            Reservation reservation = db.Reservations.FirstOrDefault(r => r.IdReservation == id && r.Firstname == firstname && r.Name == name);
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(reservation);
+        }
+
+
 
         /// <summary>
         /// Not used in project context
@@ -165,28 +179,6 @@ namespace HotelReservationAPI.Controllers
 
             return CreatedAtRoute("DefaultApi", new { id = reservation.IdReservation }, reservation);
         }
-
-        // DELETE: api/Reservations/delete?id={id}?firstname={firstname}?lastname={lastname}
-        [ResponseType(typeof(Reservation))]
-        [Route("delete")]
-        private IHttpActionResult DeletePersonReservation(int id, string firstname, string lastname)
-        {
-            
-            Reservation reservation = db.Reservations.FirstOrDefault(r => r.IdReservation == id && r.Firstname == firstname && r.Name == lastname);
-
-            if (reservation == null)
-            {
-                return NotFound();
-            }
-
-            db.Reservations.Remove(reservation);
-            db.SaveChanges();
-
-            return Ok(reservation);
-
-
-        }
-
 
 
         private bool CheckRoomReservation(Reservation reservation)
